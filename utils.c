@@ -1,0 +1,37 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/12/27 18:48:05 by craimond          #+#    #+#             */
+/*   Updated: 2023/12/27 19:02:57 by craimond         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "philosophers.h"
+
+int ft_atoi(char *nptr)
+{
+	long	n;
+	char	sign;
+
+	n = 0;
+	while (*nptr == 32 || (*nptr >= '\t' && *nptr <= '\r'))
+		nptr++;
+	sign = nptr[0];
+	if (*nptr == '-' || *nptr == '+')
+		nptr++;
+	while (*nptr != '\0' && *nptr <= '9' && *nptr >= '0')
+	{
+		n *= 10;
+		n += (*nptr++ - 48);
+	}
+	n = (-n) * (sign == '-') + (n) * (sign != '-');
+	if (n > INT32_MAX)
+        n = INT32_MAX;
+    else if (n < INT32_MIN)
+        n = INT32_MIN;
+	return ((int)n);
+}
