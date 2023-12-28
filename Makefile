@@ -6,7 +6,7 @@
 #    By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/12/27 16:46:18 by craimond          #+#    #+#              #
-#    Updated: 2023/12/28 16:19:02 by craimond         ###   ########.fr        #
+#    Updated: 2023/12/28 17:27:01 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,8 +15,15 @@ SRCS = main.c list_utils.c utils.c
 OBJS = ${SRCS:.c=.o}
 HEADER = philosophers.h
 
+#debugging options
+NPHILOS = 5
+TIMETODIE = 20000
+TIMETOEAT = 1000
+TIMETOSLEEP = 700
+#################
+
 $(NAME): $(OBJS) $(HEADER)
-	@cc -Wall -Wextra -Werror $(OBJS) -o $(NAME)
+	@cc -Wall -Wextra -Werror -lpthread $(OBJS) -o $(NAME)
 	@echo compiled $(NAME)
 
 .c.o:
@@ -33,5 +40,11 @@ fclean: clean
 	@echo removed $(NAME)
 
 re: fclean all
+
+debug: $(HEADER)
+	@gcc -g -Wall -Wextra -Werror $(SRCS) -lpthread -o $(NAME)
+	@echo starting debugger with default input
+	@gdb --args ./$(NAME) $(NPHILOS) $(TIMETODIE) $(TIMETOEAT) $(TIMETOSLEEP)
+	@fclean
 
 .PHONY: all clean fclean re

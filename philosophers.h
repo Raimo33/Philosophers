@@ -37,6 +37,7 @@ typedef struct s_params
 	uint32_t	time_to_eat;
 	uint32_t	time_to_sleep;
 	int32_t		max_meals;
+	uint64_t	start_time;
 }						t_params;
 
 typedef struct s_philo
@@ -50,7 +51,8 @@ typedef struct s_philo
 	struct s_philo	*next;
 }						t_philo;
 
-t_philo	*lst_new(t_params *p, uint32_t i);
-int 	ft_atoi(char *nptr);
+t_philo		*lst_new(uint32_t i, t_params *p);
+int 		ft_atoi(char *nptr);
+uint64_t	get_time(uint64_t start);
 
 #endif
