@@ -6,23 +6,24 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 19:37:38 by craimond          #+#    #+#             */
-/*   Updated: 2023/12/27 19:43:55 by craimond         ###   ########.fr       */
+/*   Updated: 2023/12/28 15:40:37 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-t_seat	*ft_lstnew(t_params *p, uint32_t i)
+t_philo	*lstnew(t_params *p, uint32_t i)
 {
-	t_seat	*new_seat;
+	t_philo		*new_philo;
 
-	new_seat = malloc(sizeof(t_seat));
-	if (!new_seat)
+	new_philo = malloc(sizeof(t_philo));
+	if (!new_philo)
 		return (NULL);
-	new_seat->id = i;
-    new_seat->meals_eaten = 0;
-    new_seat->status = THINKING;
-    new_seat->fork_status = FREE;
-	new_seat->next = NULL;
-	return (new_seat);
+	new_philo->id = i;
+    new_philo->meals_eaten = 0;
+    new_philo->status = THINKING * (i % 2 == 1) + EATING * (i % 2 == 0);
+	new_philo->thread_id = NULL;
+	new_philo->next = NULL;
+	new_philo->prev = NULL;
+	return (new_philo);
 }

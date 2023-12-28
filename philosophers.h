@@ -30,30 +30,27 @@ typedef enum e_philo_status
 	DEAD
 }						t_status;
 
-typedef enum e_fork_status
-{
-	USED,
-	FREE
-}						t_fork_status;
-
 typedef struct s_params
 {
 	uint32_t	num_philo;
 	uint32_t	time_to_die;
 	uint32_t	time_to_eat;
 	uint32_t	time_to_sleep;
-	uint32_t	num_meals;
+	int32_t		max_meals;
 }						t_params;
 
-typedef struct s_seat
+typedef struct s_philo
 {
-	uint32_t		id;
-	uint32_t		meals_eaten;
-	t_status		status;
-	t_fork_status	fork_status;
-	struct s_seat	*next;
-}						t_seat;
+	uint32_t	id;
+	uint32_t	meals_eaten;
+	t_status	status;
+	pthread_t	thread_id;
+	t_params	*params;
+	// uint64_t
+	struct s_philo	*prev;
+	struct s_philo	*next;
+}						t_philo;
 
-t_seat	*ft_lstnew(void *content);
+t_philo	*lstnew(t_params *p, uint32_t i);
 
 #endif
