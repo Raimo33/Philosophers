@@ -6,33 +6,37 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 16:46:03 by craimond          #+#    #+#             */
-/*   Updated: 2023/12/28 16:04:15 by craimond         ###   ########.fr       */
+/*   Updated: 2023/12/28 16:37:45 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-static void		init(t_params *p, char **argv, int8_t is_max_meals);
+static void		*routine(void *arg);
 static int8_t	check_args(int argc, char **argv);
+static uint8_t	routine_start(t_philo **table, t_params p);
+static uint8_t 	init_table(t_params p, t_philo **table);
+static void		init(t_params *p, char **argv, int8_t is_max_meals);
+static void		threads_wait(t_philo **table, t_params p);
 
 int main(int argc, char **argv)
 {
 	int8_t		out;
 	t_params	params;
 	t_philo		**table;
-		
 
 	out = check_args(argc, argv);
 	if (out > 0)
 		return (out);
 	init(&params, argv, out);
+	table = malloc(sizeof(t_philo *) * params.num_philo);
 	out = init_table(params, table);
 	if (out > 0)
 		return (out);
 	out = routine_start(table, params);
 	if (out > 0)
 		return (out);
-	wait_threads(table, params);
+	threads_wait(table, params);
 }
 
 static void	threads_wait(t_philo **table, t_params p)
@@ -46,7 +50,7 @@ static void	threads_wait(t_philo **table, t_params p)
 	while(++i <= p.num_philo)
 	{
 		pthread_join(philo->thread_id, &exit_status);
-		if (exit_status == 1)
+		if ((uintptr_t)exit_status == 1)
 			printf("%lu %u died\n", get_time(), philo->id);
 		philo = philo->next;
 	}
@@ -57,7 +61,7 @@ static void	*routine(void *arg)
 	t_philo		*philo;
 	t_params	p;
 	uint64_t	bedtime;
-	uint32_t	num_meals;
+	int32_t		num_meals;
 
 	philo = (t_philo *)arg;
 	p = *philo->params;
@@ -73,9 +77,9 @@ static void	*routine(void *arg)
 			printf("%lu %u is eating\n", get_time(), philo->id);
 			num_meals++;
 			if (get_time() - bedtime > p.time_to_die)
-				return (1);
+				return ((void *)1);
 			if (p.max_meals >= 0 && num_meals >= p.max_meals)
-				return (2);
+				return ((void *)2);
 		}
 		if (philo->next != philo && philo->status == EATING)
 		{
@@ -103,7 +107,7 @@ static uint8_t	routine_start(t_philo **table, t_params p)
 	i = -1;
 	while (++i < p.num_philo)
 	{
-		if (pthread_create(philo->thread_id, NULL, &routine, philo) == -1)
+		if (pthread_create(&philo->thread_id, NULL, &routine, philo) == -1)
 			return (write(2, "Error: failed to create thread\n", 32) * 0 + 6);
 		philo = philo->next;
 	}

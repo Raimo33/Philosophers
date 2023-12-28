@@ -41,16 +41,16 @@ typedef struct s_params
 
 typedef struct s_philo
 {
-	uint32_t	id;
-	uint32_t	meals_eaten;
-	t_status	status;
-	pthread_t	thread_id;
-	t_params	*params;
-	// uint64_t
+	uint32_t		id;
+	uint32_t		meals_eaten;
+	t_status		status;
+	pthread_t		thread_id;
+	t_params		*params;
 	struct s_philo	*prev;
 	struct s_philo	*next;
 }						t_philo;
 
-t_philo	*lstnew(t_params *p, uint32_t i);
+t_philo	*lst_new(t_params *p, uint32_t i);
+int 	ft_atoi(char *nptr);
 
 #endif

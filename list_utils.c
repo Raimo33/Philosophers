@@ -6,13 +6,13 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 19:37:38 by craimond          #+#    #+#             */
-/*   Updated: 2023/12/28 15:40:37 by craimond         ###   ########.fr       */
+/*   Updated: 2023/12/28 16:29:55 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-t_philo	*lstnew(t_params *p, uint32_t i)
+t_philo	*lst_new(t_params *p, uint32_t i)
 {
 	t_philo		*new_philo;
 
