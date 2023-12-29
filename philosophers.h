@@ -41,14 +41,17 @@ typedef struct s_data
 	uint64_t		start_time;
 	uint8_t			game_over;
 	uint32_t		num_philo_finished;
-	pthread_mutex_t	can_eat;
-	pthread_mutex_t	can_set_game_over;
+	pthread_mutex_t	eat_mutex;
+	pthread_mutex_t	game_over_mutex;
+	pthread_mutex_t	bedtime_mutex;
+	pthread_mutex_t	finished_mutex;
 }						t_data;
 
 typedef struct s_philo
 {
 	uint32_t		id;
-	uint32_t		meals_eaten;
+	int32_t			meals_eaten;
+	uint64_t		bedtime;
 	t_status		status;
 	pthread_t		thread_id;
 	pthread_t		thread2_id;
