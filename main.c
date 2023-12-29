@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 16:46:03 by craimond          #+#    #+#             */
-/*   Updated: 2023/12/28 18:37:38 by craimond         ###   ########.fr       */
+/*   Updated: 2023/12/29 14:45:10 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,35 +14,40 @@
 
 static void		*routine(void *arg);
 static int8_t	check_args(int argc, char **argv);
-static uint8_t	routine_start(t_philo **table, t_params p);
-static uint8_t 	init_table(t_params *p, t_philo **table);
-static void		init(t_params *p, char **argv, int8_t is_max_meals);
-static void		threads_wait(t_philo **table, t_params p);
+static uint8_t	routine_start(t_philo **table, t_data d);
+static uint8_t 	init_table(t_data *d, t_philo **table);
+static uint8_t	init(t_data *d, char **argv, int8_t is_max_meals);
+static void		threads_wait(t_philo **table, t_data d);
 
 int main(int argc, char **argv)
 {
-	int8_t		out;
-	t_params	*params;
-	t_philo		**table;
+	int8_t			out;
+	t_data			*data;
+	t_philo			**table;
 
 	out = check_args(argc, argv);
 	if (out > 0)
 		return (out);
-	params = malloc(sizeof(t_params));
-	if (!params)
-		return (write(2, "Error: failed to allocate memory\n", 34));
-	init(params, argv, out);
-	table = malloc(sizeof(t_philo *) * params->num_philo);
-	out = init_table(params, table);
+	data = malloc(sizeof(t_data));
+	if (!data)
+		return (write(2, "Error: failed to allocate memory\n", 34) * 0 + 1);
+	out = init(data, argv, out);
 	if (out > 0)
 		return (out);
-	out = routine_start(table, *params);
+	table = malloc(sizeof(t_philo *) * data->num_philo);
+	if (!table)
+		return (write(2, "Error: failed to allocate memory\n", 34) * 0 + 2);
+	out = init_table(data, table);
 	if (out > 0)
 		return (out);
-	threads_wait(table, *params);
+	out = routine_start(table, *data);
+	if (out > 0)
+		return (out);
+	threads_wait(table, *data);
+	pthread_mutex_destroy(&data->lock);
 }
 
-static void	threads_wait(t_philo **table, t_params p)
+static void	threads_wait(t_philo **table, t_data d)
 {
 	t_philo		*philo;
 	void		*exit_status;
@@ -50,11 +55,11 @@ static void	threads_wait(t_philo **table, t_params p)
 
 	philo = *table;
 	i = 0;
-	while(++i <= p.num_philo)
+	while(++i <= d.num_philo)
 	{
 		pthread_join(philo->thread_id, &exit_status);
 		if ((uintptr_t)exit_status == 1)
-			printf("%20lu %10u died\n", get_time(p.start_time), philo->id);
+			printf("%20lu %10u died\n", get_time(d.start_time), philo->id);
 		philo = philo->next;
 	}
 }
@@ -62,54 +67,61 @@ static void	threads_wait(t_philo **table, t_params p)
 static void	*routine(void *arg)
 {
 	t_philo		*philo;
-	t_params	p;
+	t_data		d;
 	uint64_t	bedtime;
 	int32_t		num_meals;
 
 	philo = (t_philo *)arg;
-	p = *philo->params;
-	bedtime = get_time(p.start_time);
+	d = *philo->data;
+	bedtime = get_time(d.start_time);
 	num_meals = 0;
 	if (philo->status == EATING)
 	{
-		printf("%-20lu %-10u has taken a fork\n", get_time(p.start_time), philo->id);
-		printf("%-20lu %-10u has taken a fork\n", get_time(p.start_time), philo->id);
-		printf("%-20lu %-10u is eating\n", get_time(p.start_time), philo->id);
+		printf("%-20lu %-10u has taken a fork\n", get_time(d.start_time), philo->id);
+		printf("%-20lu %-10u has taken a fork\n", get_time(d.start_time), philo->id);
+		printf("%-20lu %-10u is eating\n", get_time(d.start_time), philo->id);
 	}
 	else if (philo->status == THINKING)
-		printf("%-20lu %-10u is thinking\n", get_time(p.start_time), philo->id);
+		printf("%-20lu %-10u is thinking\n", get_time(d.start_time), philo->id);
 	while (1)
 	{
-		if (philo->next != philo && philo->status == THINKING && (philo->next->status != EATING || philo->prev->status != EATING))
+		if (philo->next != philo && philo->status == THINKING)
 		{
-			philo->status = EATING;
-			printf("%-20lu %-10u has taken a fork\n", get_time(p.start_time), philo->id);
-			printf("%-20lu %-10u has taken a fork\n", get_time(p.start_time), philo->id);
-			printf("%-20lu %-10u is eating\n", get_time(p.start_time), philo->id);
-			num_meals++;
-			if (get_time(p.start_time) - bedtime > p.time_to_die)
-				return ((void *)1);
-			if (p.max_meals >= 0 && num_meals >= p.max_meals)
-				return ((void *)2);
+			//mutex here to perform this check 1 thread at a time
+			pthread_mutex_lock(&d.lock);
+			if (philo->next->status != EATING || philo->prev->status != EATING)
+			{
+				philo->status = EATING;
+				printf("%-20lu %-10u has taken a fork\n", get_time(d.start_time), philo->id);
+				printf("%-20lu %-10u has taken a fork\n", get_time(d.start_time), philo->id);
+				printf("%-20lu %-10u is eating\n", get_time(d.start_time), philo->id);
+				num_meals++;
+				if (get_time(d.start_time) - bedtime > d.time_to_die)
+					return ((void *)1);
+				if (d.max_meals >= 0 && num_meals >= d.max_meals)
+					return ((void *)2);
+			}
+			pthread_mutex_unlock(&d.lock);
+			//unlock mutex to let other threads check
 		}
 		if (philo->next != philo && philo->status == EATING)
 		{
-			usleep(p.time_to_eat * 1000);
+			usleep(d.time_to_eat * 1000);
 			philo->status = SLEEPING;
-			printf("%-20lu %-10u is sleeping\n", get_time(p.start_time), philo->id);
-			bedtime = get_time(p.start_time);
+			printf("%-20lu %-10u is sleeping\n", get_time(d.start_time), philo->id);
+			bedtime = get_time(d.start_time);
 		}
 		if (philo->next != philo && philo->status == SLEEPING)
 		{
-			usleep(p.time_to_sleep * 1000);
+			usleep(d.time_to_sleep * 1000);
 			philo->status = THINKING;
-			printf("%-20lu %-10u is thinking\n", get_time(p.start_time), philo->id);
+			printf("%-20lu %-10u is thinking\n", get_time(d.start_time), philo->id);
 		}
 	}
 
 } //ogni 9 ms fare un check del tempo (per fare cio devi mettere bedtime nella struttura del filosofo e creare un extra thread (waiter) che controlli ogni 9ms se i filosofi sono morti)
 
-static uint8_t	routine_start(t_philo **table, t_params p)
+static uint8_t	routine_start(t_philo **table, t_data p)
 {
 	uint32_t	i;
 	t_philo		*philo;
@@ -125,7 +137,7 @@ static uint8_t	routine_start(t_philo **table, t_params p)
 	return (0);
 }
 
-static uint8_t init_table(t_params *p, t_philo **table)
+static uint8_t init_table(t_data *d, t_philo **table)
 {
 	uint32_t	i;
 	t_philo		*new_philo;
@@ -133,9 +145,9 @@ static uint8_t init_table(t_params *p, t_philo **table)
 
 	prev = NULL;
 	i = 0;
-	while (++i <= p->num_philo)
+	while (++i <= d->num_philo)
 	{
-		new_philo = lst_new(i, p);
+		new_philo = lst_new(i, d);
 		if (!new_philo)
 			return (write(2, "Error: failed to allocate memory\n", 34) * 0 + 5);
 		if (i == 1)
@@ -150,16 +162,19 @@ static uint8_t init_table(t_params *p, t_philo **table)
 	return (0);
 }
 
-static void	init(t_params *p, char **argv, int8_t is_max_meals)
+static uint8_t	init(t_data *d, char **argv, int8_t is_max_meals)
 {
-	p->num_philo = ft_atoi(argv[1]);
-	p->time_to_die = ft_atoi(argv[2]);
-	p->time_to_eat = ft_atoi(argv[3]);
-	p->time_to_sleep = ft_atoi(argv[4]);
-	p->max_meals = -1;
+	d->num_philo = ft_atoi(argv[1]);
+	d->time_to_die = ft_atoi(argv[2]);
+	d->time_to_eat = ft_atoi(argv[3]);
+	d->time_to_sleep = ft_atoi(argv[4]);
+	d->max_meals = -1;
 	if (is_max_meals)
-		p->max_meals = ft_atoi(argv[5]);
-	p->start_time = get_time(0);
+		d->max_meals = ft_atoi(argv[5]);
+	d->start_time = get_time(0);
+	if (pthread_mutex_init(&d->lock, NULL) != 0)
+		return (write(2, "Error: failed to initialize mutex\n", 35) * 0 + 3);
+	return (0);
 }
 
 static int8_t	check_args(int argc, char **argv)
@@ -173,7 +188,7 @@ static int8_t	check_args(int argc, char **argv)
 	if (argv[5])
 	{
 		if (argv[5][0] == '0' || argv[5][0] == '-')
-			return (write(2, "Invalid number of meals\n", 41) * 0 + 4);
+			return (write(2, "Invalid number of meals\n", 25) * 0 + 4);
 		return (-1);
 	}
 	return (0);

@@ -30,15 +30,16 @@ typedef enum e_philo_status
 	DEAD
 }						t_status;
 
-typedef struct s_params
+typedef struct s_data
 {
-	uint32_t	num_philo;
-	uint32_t	time_to_die;
-	uint32_t	time_to_eat;
-	uint32_t	time_to_sleep;
-	int32_t		max_meals;
-	uint64_t	start_time;
-}						t_params;
+	uint32_t		num_philo;
+	uint32_t		time_to_die;
+	uint32_t		time_to_eat;
+	uint32_t		time_to_sleep;
+	int32_t			max_meals;
+	uint64_t		start_time;
+	pthread_mutex_t	lock;
+}						t_data;
 
 typedef struct s_philo
 {
@@ -46,12 +47,12 @@ typedef struct s_philo
 	uint32_t		meals_eaten;
 	t_status		status;
 	pthread_t		thread_id;
-	t_params		*params;
+	t_data			*data;
 	struct s_philo	*prev;
 	struct s_philo	*next;
 }						t_philo;
 
-t_philo		*lst_new(uint32_t i, t_params *p);
+t_philo		*lst_new(uint32_t i, t_data *d);
 int 		ft_atoi(char *nptr);
 uint64_t	get_time(uint64_t start);
 
