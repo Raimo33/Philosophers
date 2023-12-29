@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 16:46:03 by craimond          #+#    #+#             */
-/*   Updated: 2023/12/29 14:45:10 by craimond         ###   ########.fr       */
+/*   Updated: 2023/12/29 19:51:42 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,10 @@ static int8_t	check_args(int argc, char **argv);
 static uint8_t	routine_start(t_philo **table, t_data d);
 static uint8_t 	init_table(t_data *d, t_philo **table);
 static uint8_t	init(t_data *d, char **argv, int8_t is_max_meals);
-static void		threads_wait(t_philo **table, t_data d);
+static void		*check_death(void *arg);
+static void 	join_threads(t_data d, t_philo *philo);
+static void 	print_state(t_data *d, uint32_t id, char *str);
+static void 	game_over(t_data *d);
 
 int main(int argc, char **argv)
 {
@@ -43,83 +46,116 @@ int main(int argc, char **argv)
 	out = routine_start(table, *data);
 	if (out > 0)
 		return (out);
-	threads_wait(table, *data);
-	pthread_mutex_destroy(&data->lock);
+	join_threads(*data, *table);
+	pthread_mutex_destroy(&data->can_eat);
+	pthread_mutex_destroy(&data->can_set_game_over);
 }
 
-static void	threads_wait(t_philo **table, t_data d)
+static void join_threads(t_data d, t_philo *philo)
 {
-	t_philo		*philo;
-	void		*exit_status;
-	uint32_t 	i;
+	uint32_t	i;
 
-	philo = *table;
-	i = 0;
-	while(++i <= d.num_philo)
+	i = -1;
+	while (++i < d.num_philo)
 	{
-		pthread_join(philo->thread_id, &exit_status);
-		if ((uintptr_t)exit_status == 1)
-			printf("%20lu %10u died\n", get_time(d.start_time), philo->id);
+		pthread_join(philo->thread_id, NULL);
 		philo = philo->next;
 	}
+}
+static void	*check_death(void *arg)
+{
+	t_philo		*philo;
+	t_data		*d;
+
+	philo = (t_philo *)arg;
+	d = philo->data;
+	usleep(d->time_to_eat * 1000);
+	usleep(d->time_to_die * 1000 + 1000);
+	if (philo->status == DEAD)
+	{
+		printf("%-20lu %-10u died\n", get_time(d->start_time), philo->id);
+		game_over(d);
+	}
+	else if (philo->status == FINISHED)
+	{
+		if (++(d->num_philo_finished) >= d->num_philo)
+			game_over(d);
+	}
+	return (NULL);
+}
+
+static void game_over(t_data *d)
+{
+	pthread_mutex_lock(&d->can_set_game_over);
+	d->game_over = 1;
+	pthread_mutex_unlock(&d->can_set_game_over);
 }
 
 static void	*routine(void *arg)
 {
 	t_philo		*philo;
-	t_data		d;
+	t_data		*d;
 	uint64_t	bedtime;
 	int32_t		num_meals;
 
 	philo = (t_philo *)arg;
-	d = *philo->data;
-	bedtime = get_time(d.start_time);
+	d = philo->data;
+	bedtime = get_time(d->start_time);
 	num_meals = 0;
-	if (philo->status == EATING)
+	if (philo->status == THINKING)
 	{
-		printf("%-20lu %-10u has taken a fork\n", get_time(d.start_time), philo->id);
-		printf("%-20lu %-10u has taken a fork\n", get_time(d.start_time), philo->id);
-		printf("%-20lu %-10u is eating\n", get_time(d.start_time), philo->id);
+		print_state(d, philo->id, "is thinking");
+		usleep(d->time_to_eat * 1000);
 	}
-	else if (philo->status == THINKING)
-		printf("%-20lu %-10u is thinking\n", get_time(d.start_time), philo->id);
 	while (1)
 	{
-		if (philo->next != philo && philo->status == THINKING)
+		pthread_mutex_lock(&d->can_set_game_over);
+		if (d->game_over == 1)
+			break;
+		pthread_mutex_unlock(&d->can_set_game_over);
+		pthread_mutex_lock(&d->can_eat);
+		if (philo->next->status != EATING || philo->prev->status != EATING)
 		{
-			//mutex here to perform this check 1 thread at a time
-			pthread_mutex_lock(&d.lock);
-			if (philo->next->status != EATING || philo->prev->status != EATING)
+			//////////////////////////////philo_eat
+			if (get_time(d->start_time) - bedtime > d->time_to_die)
 			{
-				philo->status = EATING;
-				printf("%-20lu %-10u has taken a fork\n", get_time(d.start_time), philo->id);
-				printf("%-20lu %-10u has taken a fork\n", get_time(d.start_time), philo->id);
-				printf("%-20lu %-10u is eating\n", get_time(d.start_time), philo->id);
-				num_meals++;
-				if (get_time(d.start_time) - bedtime > d.time_to_die)
-					return ((void *)1);
-				if (d.max_meals >= 0 && num_meals >= d.max_meals)
-					return ((void *)2);
+				philo->status = DEAD;
+				pthread_mutex_unlock(&d->can_eat);
+				break ;
 			}
-			pthread_mutex_unlock(&d.lock);
-			//unlock mutex to let other threads check
-		}
-		if (philo->next != philo && philo->status == EATING)
-		{
-			usleep(d.time_to_eat * 1000);
+			else if (d->max_meals >= 0 && num_meals >= d->max_meals)
+			{
+				philo->status = FINISHED;
+				pthread_mutex_unlock(&d->can_eat);
+				break ;
+			}
+			pthread_create(&philo->thread2_id, NULL, &check_death, philo);
+			philo->status = EATING;
+			pthread_mutex_unlock(&d->can_eat);
+			print_state(d, philo->id, "has taken a fork");
+			print_state(d, philo->id, "has taken a fork");
+			print_state(d, philo->id, "is eating");
+			num_meals++;
+			usleep(d->time_to_eat * 1000);
+			////////////////////////////////////////philo_sleep
 			philo->status = SLEEPING;
-			printf("%-20lu %-10u is sleeping\n", get_time(d.start_time), philo->id);
-			bedtime = get_time(d.start_time);
-		}
-		if (philo->next != philo && philo->status == SLEEPING)
-		{
-			usleep(d.time_to_sleep * 1000);
+			print_state(d, philo->id, "is sleeping");
+			bedtime = get_time(d->start_time);
+			usleep(d->time_to_sleep * 1000);
+			//////////philo_think//////////////////
 			philo->status = THINKING;
-			printf("%-20lu %-10u is thinking\n", get_time(d.start_time), philo->id);
+			print_state(d, philo->id, "is thinking");
+			//////////////////////////////////
 		}
 	}
+	return (NULL);
+}
 
-} //ogni 9 ms fare un check del tempo (per fare cio devi mettere bedtime nella struttura del filosofo e creare un extra thread (waiter) che controlli ogni 9ms se i filosofi sono morti)
+static void print_state(t_data *d, uint32_t id, char *str)
+{
+	if (d->game_over != 1)
+		printf("%-20lu %-10u %s\n", get_time(d->start_time), id, str);
+}
 
 static uint8_t	routine_start(t_philo **table, t_data p)
 {
@@ -172,8 +208,10 @@ static uint8_t	init(t_data *d, char **argv, int8_t is_max_meals)
 	if (is_max_meals)
 		d->max_meals = ft_atoi(argv[5]);
 	d->start_time = get_time(0);
-	if (pthread_mutex_init(&d->lock, NULL) != 0)
+	if (pthread_mutex_init(&d->can_eat, NULL) != 0 || pthread_mutex_init(&d->can_set_game_over, NULL) != 0)
 		return (write(2, "Error: failed to initialize mutex\n", 35) * 0 + 3);
+	d->num_philo_finished = 0;
+	d->game_over = 0;
 	return (0);
 }
 

@@ -27,7 +27,8 @@ typedef enum e_philo_status
 	EATING,
 	SLEEPING,
 	THINKING,
-	DEAD
+	DEAD,
+	FINISHED
 }						t_status;
 
 typedef struct s_data
@@ -38,7 +39,10 @@ typedef struct s_data
 	uint32_t		time_to_sleep;
 	int32_t			max_meals;
 	uint64_t		start_time;
-	pthread_mutex_t	lock;
+	uint8_t			game_over;
+	uint32_t		num_philo_finished;
+	pthread_mutex_t	can_eat;
+	pthread_mutex_t	can_set_game_over;
 }						t_data;
 
 typedef struct s_philo
@@ -47,6 +51,7 @@ typedef struct s_philo
 	uint32_t		meals_eaten;
 	t_status		status;
 	pthread_t		thread_id;
+	pthread_t		thread2_id;
 	t_data			*data;
 	struct s_philo	*prev;
 	struct s_philo	*next;
