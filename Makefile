@@ -6,12 +6,12 @@
 #    By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/12/27 16:46:18 by craimond          #+#    #+#              #
-#    Updated: 2023/12/29 18:46:35 by craimond         ###   ########.fr        #
+#    Updated: 2023/12/30 15:41:18 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = philo
-SRCS = main.c list_utils.c utils.c
+SRCS = main.c routine.c routine_utils.c list_utils.c utils.c
 OBJS = ${SRCS:.c=.o}
 HEADER = philosophers.h
 

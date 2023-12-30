@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 18:48:05 by craimond          #+#    #+#             */
-/*   Updated: 2023/12/28 18:07:30 by craimond         ###   ########.fr       */
+/*   Updated: 2023/12/30 15:19:20 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,4 +44,14 @@ uint64_t	get_time(uint64_t start)
 
 	gettimeofday(&times, NULL);
 	return ((uint64_t)((times.tv_sec * 1000 + times.tv_usec / 1000) - start));
+}
+
+void	destroy_and_free(t_data *data, t_philo **table)
+{
+	pthread_mutex_destroy(&data->eat_mutex);
+	pthread_mutex_destroy(&data->game_over_mutex);
+	pthread_mutex_destroy(&data->finished_mutex);
+	pthread_mutex_destroy(&data->meal_time_mutex);
+	lst_clear(table, *data);
+	free(data);
 }

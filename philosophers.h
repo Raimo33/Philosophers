@@ -43,7 +43,7 @@ typedef struct s_data
 	uint32_t		num_philo_finished;
 	pthread_mutex_t	eat_mutex;
 	pthread_mutex_t	game_over_mutex;
-	pthread_mutex_t	bedtime_mutex;
+	pthread_mutex_t	meal_time_mutex;
 	pthread_mutex_t	finished_mutex;
 }						t_data;
 
@@ -51,7 +51,7 @@ typedef struct s_philo
 {
 	uint32_t		id;
 	int32_t			meals_eaten;
-	uint64_t		bedtime;
+	uint64_t		meal_time;
 	t_status		status;
 	pthread_t		thread_id;
 	pthread_t		thread2_id;
@@ -60,8 +60,15 @@ typedef struct s_philo
 	struct s_philo	*next;
 }						t_philo;
 
-t_philo		*lst_new(uint32_t i, t_data *d);
+int8_t 		routine_start(t_philo **table, t_data p);
+void 		handle_lone_philo(t_data d);
+uint8_t		is_game_over(t_data *d);
+void 		set_game_over(t_data *d);
+void 		print_state(t_data *d, uint32_t id, char *str);
 int 		ft_atoi(char *nptr);
 uint64_t	get_time(uint64_t start);
+void		destroy_and_free(t_data *data, t_philo **table);
+t_philo		*lst_new(uint32_t i, t_data *d);
+void		lst_clear(t_philo **table, t_data d);
 
 #endif
