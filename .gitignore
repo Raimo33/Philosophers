@@ -1,3 +1,4 @@
-philo
-*.o
+philo/philo
+philo/*.o
 .vscode/
+philo/.vscode/
