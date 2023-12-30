@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/30 14:49:31 by craimond          #+#    #+#             */
-/*   Updated: 2023/12/30 18:04:17 by craimond         ###   ########.fr       */
+/*   Updated: 2023/12/30 18:43:37 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ static void	*routine(void *arg)
 
 	philo = (t_philo *)arg;
 	pthread_create(&philo->thread2_id, NULL, &check_death, philo);
+	pthread_detach(philo->thread2_id);
 	if (philo->status == THINKING)
 	{
 		print_state(philo->data, philo->id, "is thinking");
@@ -57,7 +58,6 @@ static void	*routine(void *arg)
 		usleep(philo->data->time_to_sleep * 1000);
 		philo->status = THINKING;
 		print_state(philo->data, philo->id, "is thinking");
-		pthread_detach(philo->thread2_id);
 	}
 	return (NULL);
 }
@@ -67,6 +67,7 @@ static void	philo_eat(t_philo *philo)
 	philo->status = EATING;
 	philo->meals_eaten++;
 	pthread_create(&philo->thread2_id, NULL, &check_death, philo);
+	pthread_detach(philo->thread2_id);
 	print_state(philo->data, philo->id, "is eating");
 	pthread_mutex_lock(&philo->data->meal_time_mutex);
 	philo->meal_time = get_time(philo->data->start_time);

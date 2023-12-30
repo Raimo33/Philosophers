@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 16:46:03 by craimond          #+#    #+#             */
-/*   Updated: 2023/12/30 17:07:30 by craimond         ###   ########.fr       */
+/*   Updated: 2023/12/30 18:39:29 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ int main(int argc, char **argv)
 		return (-1);
 	}
 	join_threads(*data, *table);
+	usleep(data->time_to_die * 1000 + 1000);
 	destroy_and_free(data, table);
 	return (0);
 }

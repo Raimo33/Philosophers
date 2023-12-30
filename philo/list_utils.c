@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 19:37:38 by craimond          #+#    #+#             */
-/*   Updated: 2023/12/30 17:57:20 by craimond         ###   ########.fr       */
+/*   Updated: 2023/12/30 18:26:24 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,13 +37,15 @@ void	lst_clear(t_philo **table, t_data d)
 {
 	uint32_t 	i;
 	t_philo		*philo;
+	t_philo		*prev;
 
 	philo = *table;
 	i = -1;
 	while (++i < d.num_philo)
 	{
-		free(philo);
+		prev = philo;
 		philo = philo->next;
+		free(prev);
 	}
 	free(table);
 }
