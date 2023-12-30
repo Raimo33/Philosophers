@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 16:46:03 by craimond          #+#    #+#             */
-/*   Updated: 2023/12/30 15:36:54 by craimond         ###   ########.fr       */
+/*   Updated: 2023/12/30 17:07:30 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,8 +70,7 @@ static int8_t	init(t_data *d, char **argv, int8_t is_max_meals)
 	if (is_max_meals == 1)
 		d->max_meals = ft_atoi(argv[5]);
 	d->start_time = get_time(0);
-	if (pthread_mutex_init(&d->eat_mutex, NULL) != 0
-		|| pthread_mutex_init(&d->game_over_mutex, NULL) != 0
+	if (pthread_mutex_init(&d->game_over_mutex, NULL) != 0
 		|| pthread_mutex_init(&d->finished_mutex, NULL) != 0
 		|| pthread_mutex_init(&d->meal_time_mutex, NULL) != 0)
 		return (write(2, "Error: failed to initialize mutex\n", 35) * 0 - 1);

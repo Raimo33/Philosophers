@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/30 14:49:31 by craimond          #+#    #+#             */
-/*   Updated: 2023/12/30 15:43:06 by craimond         ###   ########.fr       */
+/*   Updated: 2023/12/30 18:04:17 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,24 +37,26 @@ static void	*routine(void *arg)
 	t_philo		*philo;
 
 	philo = (t_philo *)arg;
-	if (philo->status == THINKING && philo->next != philo)
+	pthread_create(&philo->thread2_id, NULL, &check_death, philo);
+	if (philo->status == THINKING)
 	{
 		print_state(philo->data, philo->id, "is thinking");
 		usleep(philo->data->time_to_eat * 1000);
 	}
 	while (philo->status != DEAD && philo->status != FINISHED && !is_game_over(philo->data))
 	{
-		if (philo->next->status != EATING && philo->prev->status != EATING)
-		{
-			philo_eat(philo);
-			philo->status = SLEEPING;
-			print_state(philo->data, philo->id, "is sleeping");
-			usleep(philo->data->time_to_sleep * 1000);
-			philo->status = THINKING;
-			print_state(philo->data, philo->id, "is thinking");
-		}
-		else
-			pthread_mutex_unlock(&philo->data->eat_mutex);
+		pthread_mutex_lock(&philo->fork_mutex);
+		print_state(philo->data, philo->id, "has taken a fork");
+		pthread_mutex_lock(&philo->next->fork_mutex);
+		print_state(philo->data, philo->id, "has taken a fork");
+		philo_eat(philo);
+		pthread_mutex_unlock(&philo->next->fork_mutex);
+		pthread_mutex_unlock(&philo->fork_mutex);
+		philo->status = SLEEPING;
+		print_state(philo->data, philo->id, "is sleeping");
+		usleep(philo->data->time_to_sleep * 1000);
+		philo->status = THINKING;
+		print_state(philo->data, philo->id, "is thinking");
 		pthread_detach(philo->thread2_id);
 	}
 	return (NULL);
@@ -63,15 +65,12 @@ static void	*routine(void *arg)
 static void	philo_eat(t_philo *philo)
 {
 	philo->status = EATING;
-	pthread_mutex_unlock(&philo->data->eat_mutex);
 	philo->meals_eaten++;
-	print_state(philo->data, philo->id, "has taken a fork");
-	print_state(philo->data, philo->id, "has taken a fork");
+	pthread_create(&philo->thread2_id, NULL, &check_death, philo);
 	print_state(philo->data, philo->id, "is eating");
 	pthread_mutex_lock(&philo->data->meal_time_mutex);
 	philo->meal_time = get_time(philo->data->start_time);
 	pthread_mutex_unlock(&philo->data->meal_time_mutex);
-	pthread_create(&philo->thread2_id, NULL, &check_death, philo);
 	usleep(philo->data->time_to_eat * 1000);
 }
 
@@ -93,6 +92,7 @@ static void	*check_death(void *arg)
 	}
 	else if (philo->meals_eaten >= d->max_meals && d->max_meals != -1)
 	{
+		pthread_mutex_unlock(&d->meal_time_mutex);
 		pthread_mutex_lock(&d->finished_mutex);
 		if (++(d->num_philo_finished) >= d->num_philo)
 			set_game_over(d);

@@ -31,6 +31,12 @@ typedef enum e_philo_status
 	FINISHED
 }						t_status;
 
+typedef enum e_fork_status
+{
+	USED,
+	FREE
+}						t_fork;
+
 typedef struct s_data
 {
 	uint32_t		num_philo;
@@ -41,7 +47,6 @@ typedef struct s_data
 	uint64_t		start_time;
 	uint8_t			game_over;
 	uint32_t		num_philo_finished;
-	pthread_mutex_t	eat_mutex;
 	pthread_mutex_t	game_over_mutex;
 	pthread_mutex_t	meal_time_mutex;
 	pthread_mutex_t	finished_mutex;
@@ -53,6 +58,8 @@ typedef struct s_philo
 	int32_t			meals_eaten;
 	uint64_t		meal_time;
 	t_status		status;
+	t_fork			fork;
+	pthread_mutex_t	fork_mutex;
 	pthread_t		thread_id;
 	pthread_t		thread2_id;
 	t_data			*data;
