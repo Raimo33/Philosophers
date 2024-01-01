@@ -2,3 +2,6 @@ philo/philo
 philo/*.o
 .vscode/
 philo/.vscode/
+philo_bonus/*.o
+philo_bonus/.vscode/
+philo_bonus/philo
