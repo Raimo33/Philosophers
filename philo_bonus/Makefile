@@ -6,20 +6,14 @@
 #    By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/12/27 16:46:18 by craimond          #+#    #+#              #
-#    Updated: 2024/01/01 18:13:01 by craimond         ###   ########.fr        #
+#    Updated: 2024/01/01 18:12:52 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = philo
-SRCS = main.c routine.c routine_utils.c list_utils.c utils.c
+SRCS = $(addsuffix _bonus.c, main routine routine_utils list_utils utils)
 OBJS = ${SRCS:.c=.o}
-HEADER = philosophers.h
-
-#debugging options
-NPHILOS = 5
-TIMETODIE = 20000
-TIMETOEAT = 1000
-TIMETOSLEEP = 700
+HEADER = philosophers_bonus.h
 
 $(NAME): $(OBJS) $(HEADER)
 	@cc -Wall -Wextra -Werror -lpthread $(OBJS) -o $(NAME)
@@ -29,6 +23,8 @@ $(NAME): $(OBJS) $(HEADER)
 	@cc -Wall -Wextra -Werror -c $< -o $@
 
 all: $(NAME)
+
+bonus: $(NAME)
 
 clean:
 	@rm -rf $(OBJS)
@@ -46,4 +42,4 @@ debug: $(HEADER)
 	@gdb --args ./$(NAME) $(NPHILOS) $(TIMETODIE) $(TIMETOEAT) $(TIMETOSLEEP)
 	@fclean
 
-.PHONY: all clean fclean re debug
+.PHONY: all bonus debug clean fclean re

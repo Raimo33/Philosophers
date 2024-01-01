@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   list_utils.c                                       :+:      :+:    :+:   */
+/*   list_utils_bonus.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 19:37:38 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/01 18:23:21 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/01 18:33:34 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philosophers.h"
+#include "philosophers_bonus.h"
 
 t_philo	*lst_new(uint32_t i, t_data *d)
 {
@@ -22,12 +22,11 @@ t_philo	*lst_new(uint32_t i, t_data *d)
 	new_philo->id = i;
     new_philo->meals_eaten = 0;
 	new_philo->stop = 0;
+	new_philo->process_id = 0;
 	new_philo->thread_id = 0;
-	new_philo->thread2_id = 0;
 	new_philo->meal_time = 0;
 	new_philo->data = d;
-	pthread_mutex_init(&new_philo->fork_mutex, NULL);
-	pthread_mutex_init(&new_philo->meal_time_mutex, NULL);
+	new_philo->meal_time_sem = sem_open("/meal_time", O_CREAT, 0644, 1);
 	new_philo->next = NULL;
 	new_philo->prev = NULL;
 	return (new_philo);
@@ -45,8 +44,8 @@ void	lst_clear(t_philo **table, t_data d)
 	{
 		prev = philo;
 		philo = philo->next;
-		pthread_mutex_destroy(&prev->fork_mutex);
-		pthread_mutex_destroy(&prev->meal_time_mutex);
+		sem_close(prev->meal_time_sem);
+		sem_unlink("/meal_time");
 		free(prev);
 	}
 	free(table);

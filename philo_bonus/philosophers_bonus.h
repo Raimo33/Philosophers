@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PHILOSOPHERS_H
-# define PHILOSOPHERS_H
+#ifndef PHILOSOPHERS_BONUS_H
+# define PHILOSOPHERS_BONUS_H
 
 # include <string.h>
 # include <stdio.h>
@@ -21,28 +21,31 @@
 # include <pthread.h>
 # include <stdint.h>
 # include <limits.h>
+# include <semaphore.h>
+# include <sys/wait.h>
+# include <fcntl.h>
 
 typedef struct s_data
 {
-	pthread_mutex_t	game_over_mutex;
-	pthread_mutex_t	finished_mutex;
-	uint64_t		start_time;
-	uint32_t		num_philo;
-	uint32_t		time_to_die;
-	uint32_t		time_to_eat;
-	uint32_t		time_to_sleep;
-	int32_t			max_meals;
-	uint32_t		num_philo_finished;
-	uint8_t			game_over;
+	sem_t		*forks_pool;
+	sem_t		*finished_sem;
+	sem_t		*game_over_sem;
+	uint64_t	start_time;
+	uint32_t	num_philo;
+	uint32_t	time_to_die;
+	uint32_t	time_to_eat;
+	uint32_t	time_to_sleep;
+	int32_t		max_meals;
+	uint32_t	num_philo_finished;
+	uint8_t		game_over;
 }						t_data;
 
 typedef struct s_philo
-{
-	pthread_mutex_t	fork_mutex;
-	pthread_mutex_t	meal_time_mutex;
-	pthread_t		thread_id;
-	pthread_t		thread2_id;
+{	
 	t_data			*data;
+	sem_t			*meal_time_sem;
+	pid_t			process_id;
+	pthread_t		thread_id;
 	uint64_t		meal_time;
 	uint32_t		id;
 	int32_t			meals_eaten;
@@ -51,15 +54,15 @@ typedef struct s_philo
 	uint8_t			stop;
 }						t_philo;
 
-int8_t 		routine_start(t_philo **table, t_data p);
+int8_t 		routine_start(t_philo **table, t_data d);
 void 		handle_lone_philo(t_data d);
 uint8_t		is_game_over(t_data *d);
 void 		set_game_over(t_data *d);
 void 		print_state(t_data *d, uint32_t id, char *str);
+t_philo		*lst_new(uint32_t i, t_data *d);
+void		lst_clear(t_philo **table, t_data d);
 int 		ft_atoi(char *nptr);
 uint64_t	get_time(uint64_t start);
 void		destroy_and_free(t_data *data, t_philo **table);
-t_philo		*lst_new(uint32_t i, t_data *d);
-void		lst_clear(t_philo **table, t_data d);
 
 #endif
