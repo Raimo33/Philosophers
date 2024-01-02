@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/30 14:49:31 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/02 18:08:35 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/02 18:39:53 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ static void		routine(t_philo *philo);
 static void		philo_eat(t_philo *philo);
 static void		*check_death(void *arg);
 
-int8_t routine_start(t_philo **table, t_data d)
+int8_t	routine_start(t_philo **table, t_data d)
 {
 	uint32_t	i;
 	t_philo		*philo;
@@ -37,8 +37,6 @@ int8_t routine_start(t_philo **table, t_data d)
 
 static void	routine(t_philo *philo)
 {
-	t_philo	*priority_philo;
-
 	pthread_create(&philo->thread_id, NULL, &check_death, philo);
 	pthread_detach(philo->thread_id);
 	if (philo->id % 2 == 0)
@@ -48,19 +46,16 @@ static void	routine(t_philo *philo)
 	}
 	while (1)
 	{
-		if (philo == priority_philo)
-		{
-			sem_wait(philo->data->forks_pool);
-			print_state(philo->data, philo->id, "has taken a fork");
-			sem_wait(philo->data->forks_pool);
-			print_state(philo->data, philo->id, "has taken a fork");
-			philo_eat(philo);
-			sem_post(philo->data->forks_pool);
-			sem_post(philo->data->forks_pool);
-			print_state(philo->data, philo->id, "is sleeping");
-			usleep(philo->data->time_to_sleep * 1000);
-			print_state(philo->data, philo->id, "is thinking");
-		}
+		sem_wait(philo->data->forks_pool);
+		print_state(philo->data, philo->id, "has taken a fork");
+		sem_wait(philo->data->forks_pool);
+		print_state(philo->data, philo->id, "has taken a fork");
+		philo_eat(philo);
+		sem_post(philo->data->forks_pool);
+		sem_post(philo->data->forks_pool);
+		print_state(philo->data, philo->id, "is sleeping");
+		usleep(philo->data->time_to_sleep * 1000);
+		print_state(philo->data, philo->id, "is thinking");
 	}
 }
 
@@ -91,7 +86,8 @@ static void	*check_death(void *arg)
 		destroy_and_free(d);
 		exit(1);
 	}
-	else if (philo->meals_eaten >= philo->data->max_meals && philo->data->max_meals != -1)
+	else if (philo->meals_eaten >= philo->data->max_meals
+		&& philo->data->max_meals != -1)
 	{
 		destroy_and_free(d);
 		exit(2);
@@ -100,7 +96,7 @@ static void	*check_death(void *arg)
 	return (NULL);
 }
 
-void handle_lone_philo(t_data d)
+void	handle_lone_philo(t_data d)
 {
 	usleep(d.time_to_die * 1000);
 	printf("%-20u %-10u died\n", d.time_to_die, 1);

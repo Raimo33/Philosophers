@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 16:46:03 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/02 17:11:57 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/02 18:39:06 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ static int8_t	init(t_data *d, char **argv, int8_t is_max_meals);
 static int8_t	init_table(t_data *d, t_philo **table);
 static void		wait_processes(t_data d, t_philo **table);
 
-int main(int argc, char **argv)
+int	main(int argc, char **argv)
 {
 	t_data			*data;
 	t_philo			**table;

@@ -40,7 +40,7 @@ typedef struct s_data
 }						t_data;
 
 typedef struct s_philo
-{	
+{
 	t_data			*data;
 	sem_t			*meal_time_sem;
 	pid_t			process_id;
@@ -53,12 +53,12 @@ typedef struct s_philo
 	uint8_t			stop;
 }						t_philo;
 
-int8_t 		routine_start(t_philo **table, t_data d);
-void 		handle_lone_philo(t_data d);
-void 		print_state(t_data *d, uint32_t id, char *str);
+int8_t		routine_start(t_philo **table, t_data d);
+void		handle_lone_philo(t_data d);
+void		print_state(t_data *d, uint32_t id, char *str);
 t_philo		*lst_new(uint32_t i, t_data *d);
 void		lst_clear(t_philo **table, t_data d);
-int 		ft_atoi(char *nptr);
+int			ft_atoi(char *nptr);
 uint64_t	get_time(uint64_t start);
 void		destroy_and_free(t_data *data);
 

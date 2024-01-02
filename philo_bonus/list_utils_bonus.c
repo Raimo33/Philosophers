@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 19:37:38 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/02 17:09:28 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/02 18:39:01 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ t_philo	*lst_new(uint32_t i, t_data *d)
 	if (!new_philo)
 		return (NULL);
 	new_philo->id = i;
-    new_philo->meals_eaten = 0;
+	new_philo->meals_eaten = 0;
 	new_philo->stop = 0;
 	new_philo->process_id = 0;
 	new_philo->thread_id = 0;
@@ -35,7 +35,7 @@ t_philo	*lst_new(uint32_t i, t_data *d)
 
 void	lst_clear(t_philo **table, t_data d)
 {
-	uint32_t 	i;
+	uint32_t	i;
 	t_philo		*philo;
 	t_philo		*prev;
 
