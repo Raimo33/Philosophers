@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 16:46:03 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/01 18:31:05 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/02 17:11:57 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 static int8_t	check_args(int argc, char **argv);
 static int8_t	init(t_data *d, char **argv, int8_t is_max_meals);
 static int8_t	init_table(t_data *d, t_philo **table);
-static void		wait_processes(t_data d);
+static void		wait_processes(t_data d, t_philo **table);
 
 int main(int argc, char **argv)
 {
@@ -34,12 +34,11 @@ int main(int argc, char **argv)
 		return (write(2, "Error: failed to allocate memory\n", 34) * 0 - 1);
 	if (init_table(data, table) == -1 || routine_start(table, *data) == -1)
 	{
-		destroy_and_free(data, table);
+		destroy_and_free(data);
 		return (-1);
 	}
-	wait_processes(*data);
-	destroy_and_free(data, table);
-	usleep(data->time_to_die * 1000 + 1000);
+	wait_processes(*data, table);
+	destroy_and_free(data);
 	return (0);
 }
 
@@ -71,11 +70,10 @@ static int8_t	init(t_data *d, char **argv, int8_t is_max_meals)
 	if (is_max_meals == 1)
 		d->max_meals = ft_atoi(argv[5]);
 	d->start_time = get_time(0);
-	d->num_philo_finished = 0;
-	d->game_over = 0;
+	sem_unlink("/forks_pool");
+	sem_unlink("/print");
 	d->forks_pool = sem_open("/forks_pool", O_CREAT, 0644, d->num_philo);
-	d->finished_sem = sem_open("/finished", O_CREAT, 0644, 1);
-	d->game_over_sem = sem_open("/game_over", O_CREAT, 0644, 1);
+	d->print_sem = sem_open("/print", O_CREAT, 0644, 1);
 	return (0);
 }
 
@@ -101,15 +99,31 @@ static int8_t	init_table(t_data *d, t_philo **table)
 	}
 	(*table)->prev = prev;
 	prev->next = (*table);
+	d->table = table;
 	return (0);
 }
 
-static void	wait_processes(t_data d)
+static void	wait_processes(t_data d, t_philo **table)
 {
 	uint32_t	i;
+	uint32_t	j;
 	int32_t		status;
+	t_philo		*philo;
 
 	i = 0;
-	while (++i < d.num_philo)
+	while (++i <= d.num_philo)
+	{
 		waitpid(-1, &status, 0);
+		if (WIFEXITED(status) && WEXITSTATUS(status) == 1)
+		{
+			philo = *table;
+			j = 0;
+			while (++j <= d.num_philo)
+			{
+				kill(philo->process_id, SIGKILL);
+				philo = philo->next;
+			}
+			break ;
+		}
+	}
 }

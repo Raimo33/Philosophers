@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 18:48:05 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/01 18:34:16 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/02 17:16:45 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,14 +46,12 @@ uint64_t	get_time(uint64_t start)
 	return ((uint64_t)((times.tv_sec * 1000 + times.tv_usec / 1000) - start));
 }
 
-void	destroy_and_free(t_data *data, t_philo **table)
+void	destroy_and_free(t_data *data)
 {
 	sem_close(data->forks_pool);
-	sem_close(data->finished_sem);
-	sem_close(data->game_over_sem);
+	sem_close(data->print_sem);
 	sem_unlink("/forks_pool");
-	sem_unlink("/finished");
-	sem_unlink("/game_over");
-	lst_clear(table, *data);
+	sem_unlink("/print");
+	lst_clear(data->table, *data);
 	free(data);
 }

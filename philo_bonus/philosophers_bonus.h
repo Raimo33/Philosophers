@@ -24,20 +24,19 @@
 # include <semaphore.h>
 # include <sys/wait.h>
 # include <fcntl.h>
+# include <signal.h>
 
 typedef struct s_data
 {
-	sem_t		*forks_pool;
-	sem_t		*finished_sem;
-	sem_t		*game_over_sem;
-	uint64_t	start_time;
-	uint32_t	num_philo;
-	uint32_t	time_to_die;
-	uint32_t	time_to_eat;
-	uint32_t	time_to_sleep;
-	int32_t		max_meals;
-	uint32_t	num_philo_finished;
-	uint8_t		game_over;
+	sem_t				*forks_pool;
+	sem_t				*print_sem;
+	uint64_t			start_time;
+	uint32_t			num_philo;
+	uint32_t			time_to_die;
+	uint32_t			time_to_eat;
+	uint32_t			time_to_sleep;
+	int32_t				max_meals;
+	struct s_philo		**table;
 }						t_data;
 
 typedef struct s_philo
@@ -56,13 +55,11 @@ typedef struct s_philo
 
 int8_t 		routine_start(t_philo **table, t_data d);
 void 		handle_lone_philo(t_data d);
-uint8_t		is_game_over(t_data *d);
-void 		set_game_over(t_data *d);
 void 		print_state(t_data *d, uint32_t id, char *str);
 t_philo		*lst_new(uint32_t i, t_data *d);
 void		lst_clear(t_philo **table, t_data d);
 int 		ft_atoi(char *nptr);
 uint64_t	get_time(uint64_t start);
-void		destroy_and_free(t_data *data, t_philo **table);
+void		destroy_and_free(t_data *data);
 
 #endif

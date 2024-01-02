@@ -6,11 +6,11 @@
 #    By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/12/27 16:46:18 by craimond          #+#    #+#              #
-#    Updated: 2024/01/01 18:12:52 by craimond         ###   ########.fr        #
+#    Updated: 2024/01/02 17:38:39 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = philo
+NAME = philo_bonus
 SRCS = $(addsuffix _bonus.c, main routine routine_utils list_utils utils)
 OBJS = ${SRCS:.c=.o}
 HEADER = philosophers_bonus.h
