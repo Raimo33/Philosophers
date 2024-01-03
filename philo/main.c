@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 16:46:03 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/02 18:33:14 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/03 13:45:23 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,10 @@ int	main(int argc, char **argv)
 	if (!data)
 		return (write(2, "Error: failed to allocate memory\n", 34) * 0 - 1);
 	if (init(data, argv, (argv[5] != NULL)) == -1)
-		return (-1 * (data->num_philo != 1));
+	{
+		free(data);
+		return (-1 * (argv[1][0] != '1'));
+	}
 	table = malloc(sizeof(t_philo *) * data->num_philo);
 	if (!table)
 		return (write(2, "Error: failed to allocate memory\n", 34) * 0 - 1);
