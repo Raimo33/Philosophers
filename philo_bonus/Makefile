@@ -6,7 +6,7 @@
 #    By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/12/27 16:46:18 by craimond          #+#    #+#              #
-#    Updated: 2024/01/02 17:38:39 by craimond         ###   ########.fr        #
+#    Updated: 2024/01/03 15:47:03 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,11 +16,11 @@ OBJS = ${SRCS:.c=.o}
 HEADER = philosophers_bonus.h
 
 $(NAME): $(OBJS) $(HEADER)
-	@cc -Wall -Wextra -Werror -lpthread $(OBJS) -o $(NAME)
+	@cc -g -Wall -Wextra -Werror -lpthread $(OBJS) -o $(NAME)
 	@echo compiled $(NAME)
 
 .c.o:
-	@cc -Wall -Wextra -Werror -c $< -o $@
+	@cc -g -Wall -Wextra -Werror -c $< -o $@
 
 all: $(NAME)
 

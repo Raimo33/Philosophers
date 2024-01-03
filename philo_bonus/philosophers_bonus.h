@@ -55,7 +55,7 @@ typedef struct s_philo
 
 int8_t		routine_start(t_philo **table, t_data d);
 void		handle_lone_philo(t_data d);
-void		print_state(t_data *d, uint32_t id, char *str);
+void		print_state(t_philo *philo, char *str);
 t_philo		*lst_new(uint32_t i, t_data *d);
 void		lst_clear(t_philo **table, t_data d);
 int			ft_atoi(char *nptr);

@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/30 14:49:31 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/02 18:39:53 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/03 15:57:53 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,26 +37,31 @@ int8_t	routine_start(t_philo **table, t_data d)
 
 static void	routine(t_philo *philo)
 {
+	uint8_t	ret;
+
 	pthread_create(&philo->thread_id, NULL, &check_death, philo);
 	pthread_detach(philo->thread_id);
 	if (philo->id % 2 == 0)
 	{
-		print_state(philo->data, philo->id, "is thinking");
+		print_state(philo, "is thinking");
 		usleep(philo->data->time_to_eat * 1000);
 	}
-	while (1)
+	while (philo->stop == 0)
 	{
 		sem_wait(philo->data->forks_pool);
-		print_state(philo->data, philo->id, "has taken a fork");
+		print_state(philo, "has taken a fork");
 		sem_wait(philo->data->forks_pool);
-		print_state(philo->data, philo->id, "has taken a fork");
+		print_state(philo, "has taken a fork");
 		philo_eat(philo);
 		sem_post(philo->data->forks_pool);
 		sem_post(philo->data->forks_pool);
-		print_state(philo->data, philo->id, "is sleeping");
+		print_state(philo, "is sleeping");
 		usleep(philo->data->time_to_sleep * 1000);
-		print_state(philo->data, philo->id, "is thinking");
+		print_state(philo, "is thinking");
 	}
+	ret = philo->stop;
+	destroy_and_free(philo->data);
+	exit(ret);
 }
 
 static void	philo_eat(t_philo *philo)
@@ -64,7 +69,7 @@ static void	philo_eat(t_philo *philo)
 	philo->meals_eaten++;
 	pthread_create(&philo->thread_id, NULL, &check_death, philo);
 	pthread_detach(philo->thread_id);
-	print_state(philo->data, philo->id, "is eating");
+	print_state(philo, "is eating");
 	sem_wait(philo->meal_time_sem);
 	philo->meal_time = get_time(philo->data->start_time);
 	sem_post(philo->meal_time_sem);
@@ -82,15 +87,18 @@ static void	*check_death(void *arg)
 	sem_wait(philo->meal_time_sem);
 	if (get_time(d->start_time) - philo->meal_time >= d->time_to_die)
 	{
-		print_state(d, philo->id, "died");
-		destroy_and_free(d);
-		exit(1);
+		print_state(philo, "died");
+		sem_post(philo->meal_time_sem);
+		sem_wait(d->print_sem);
+		philo->stop = 1;
+		return (NULL);
 	}
 	else if (philo->meals_eaten >= philo->data->max_meals
 		&& philo->data->max_meals != -1)
 	{
-		destroy_and_free(d);
-		exit(2);
+		sem_post(philo->meal_time_sem);
+		philo->stop = 2;
+		return (NULL);
 	}
 	sem_post(philo->meal_time_sem);
 	return (NULL);

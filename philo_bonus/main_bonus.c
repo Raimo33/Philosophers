@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 16:46:03 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/02 18:39:06 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/03 15:59:45 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,9 +47,9 @@ static int8_t	check_args(int argc, char **argv)
 	if (argc < 5 || argc > 6)
 		return (write(2, "Error: Invalid number of arguments\n", 36) * 0 - 1);
 	if (argv[1][0] == '0' || argv[1][0] == '-')
-		return (write(2, "Error: Invalid n of philosophers\n", 32) * 0 - 1);
+		return (write(2, "Error: Invalid n of philosophers\n", 34) * 0 - 1);
 	if (argv[2][0] == '-' || argv[3][0] == '-' || argv[4][0] == '-')
-		return (write(2, "Error: Invalid time(s) format\n", 24) * 0 - 1);
+		return (write(2, "Error: Invalid time(s) format\n", 31) * 0 - 1);
 	if (argv[5] && (argv[5][0] == '0' || argv[5][0] == '-'))
 		return (write(2, "Invalid number of meals\n", 25) * 0 - 1);
 	return (0);
