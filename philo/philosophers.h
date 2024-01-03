@@ -26,6 +26,7 @@ typedef struct s_data
 {
 	pthread_mutex_t	game_over_mutex;
 	pthread_mutex_t	finished_mutex;
+	pthread_mutex_t	print_mutex;
 	uint64_t		start_time;
 	uint32_t		num_philo;
 	uint32_t		time_to_die;
@@ -51,12 +52,12 @@ typedef struct s_philo
 	uint8_t			stop;
 }						t_philo;
 
-int8_t 		routine_start(t_philo **table, t_data p);
-void 		handle_lone_philo(t_data d);
+int8_t		routine_start(t_philo **table, t_data p);
+void		handle_lone_philo(t_data d);
 uint8_t		is_game_over(t_data *d);
-void 		set_game_over(t_data *d);
-void 		print_state(t_data *d, uint32_t id, char *str);
-int 		ft_atoi(char *nptr);
+void		set_game_over(t_data *d);
+void		print_state(t_data *d, uint32_t id, char *str);
+int			ft_atoi(char *nptr);
 uint64_t	get_time(uint64_t start);
 void		destroy_and_free(t_data *data, t_philo **table);
 t_philo		*lst_new(uint32_t i, t_data *d);

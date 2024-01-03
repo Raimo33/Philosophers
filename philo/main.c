@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 16:46:03 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/01 17:09:08 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/02 18:33:14 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,9 @@
 static int8_t	check_args(int argc, char **argv);
 static int8_t	init(t_data *d, char **argv, int8_t is_max_meals);
 static int8_t	init_table(t_data *d, t_philo **table);
-static void 	join_threads(t_data d, t_philo *philo);
+static void		join_threads(t_data d, t_philo *philo);
 
-int main(int argc, char **argv)
+int	main(int argc, char **argv)
 {
 	t_data			*data;
 	t_philo			**table;
@@ -72,7 +72,8 @@ static int8_t	init(t_data *d, char **argv, int8_t is_max_meals)
 		d->max_meals = ft_atoi(argv[5]);
 	d->start_time = get_time(0);
 	if (pthread_mutex_init(&d->game_over_mutex, NULL) != 0
-		|| pthread_mutex_init(&d->finished_mutex, NULL) != 0)
+		|| pthread_mutex_init(&d->finished_mutex, NULL) != 0
+		|| pthread_mutex_init(&d->print_mutex, NULL) != 0)
 		return (write(2, "Error: failed to initialize mutex\n", 35) * 0 - 1);
 	d->num_philo_finished = 0;
 	d->game_over = 0;
@@ -104,7 +105,7 @@ static int8_t	init_table(t_data *d, t_philo **table)
 	return (0);
 }
 
-static void join_threads(t_data d, t_philo *philo)
+static void	join_threads(t_data d, t_philo *philo)
 {
 	uint32_t	i;
 

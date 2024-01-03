@@ -6,13 +6,13 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 18:48:05 by craimond          #+#    #+#             */
-/*   Updated: 2023/12/30 17:03:37 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/02 18:34:40 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-int ft_atoi(char *nptr)
+int	ft_atoi(char *nptr)
 {
 	long	n;
 	char	sign;
@@ -30,17 +30,17 @@ int ft_atoi(char *nptr)
 	}
 	n = (-n) * (sign == '-') + (n) * (sign != '-');
 	if (n > INT32_MAX)
-        n = INT32_MAX;
-    else if (n < INT32_MIN)
+		n = INT32_MAX;
+	else if (n < INT32_MIN)
 	{
-        n = INT32_MIN;
+		n = INT32_MIN;
 	}
 	return ((int)n);
 }
 
 uint64_t	get_time(uint64_t start)
 {
-	struct timeval times;
+	struct timeval	times;
 
 	gettimeofday(&times, NULL);
 	return ((uint64_t)((times.tv_sec * 1000 + times.tv_usec / 1000) - start));

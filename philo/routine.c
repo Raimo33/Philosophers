@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/30 14:49:31 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/01 18:24:35 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/02 18:34:25 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ static void	*routine(void *arg);
 static void	philo_eat(t_philo *philo);
 static void	*check_death(void *arg);
 
-int8_t routine_start(t_philo **table, t_data d)
+int8_t	routine_start(t_philo **table, t_data d)
 {
 	uint32_t	i;
 	t_philo		*philo;
@@ -81,7 +81,8 @@ static void	*check_death(void *arg)
 	d = philo->data;
 	usleep(d->time_to_die * 1000 + 1000);
 	pthread_mutex_lock(&philo->meal_time_mutex);
-	if (get_time(d->start_time) - philo->meal_time >= d->time_to_die && !is_game_over(d))
+	if (get_time(d->start_time) - philo->meal_time >= d->time_to_die
+		&& !is_game_over(d))
 	{
 		pthread_mutex_unlock(&philo->meal_time_mutex);
 		set_game_over(d);
@@ -100,7 +101,7 @@ static void	*check_death(void *arg)
 	return (NULL);
 }
 
-void handle_lone_philo(t_data d)
+void	handle_lone_philo(t_data d)
 {
 	usleep(d.time_to_die * 1000);
 	printf("%-20u %-10u died\n", d.time_to_die, 1);
