@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/30 14:49:31 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/03 15:57:53 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/15 15:12:17 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,16 +91,17 @@ static void	*check_death(void *arg)
 		sem_post(philo->meal_time_sem);
 		sem_wait(d->print_sem);
 		philo->stop = 1;
-		return (NULL);
+		sem_post(d->print_sem);
 	}
-	else if (philo->meals_eaten >= philo->data->max_meals
-		&& philo->data->max_meals != -1)
+	else if (philo->meals_eaten >= d->max_meals && d->max_meals != -1)
 	{
 		sem_post(philo->meal_time_sem);
+		sem_wait(d->print_sem);
 		philo->stop = 2;
-		return (NULL);
+		sem_post(d->print_sem);
 	}
-	sem_post(philo->meal_time_sem);
+	else
+		sem_post(philo->meal_time_sem);
 	return (NULL);
 }
 
