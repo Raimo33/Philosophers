@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 19:37:38 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/02 18:32:56 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/15 14:46:12 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,13 +27,13 @@ t_philo	*lst_new(uint32_t i, t_data *d)
 	new_philo->meal_time = 0;
 	new_philo->data = d;
 	pthread_mutex_init(&new_philo->fork_mutex, NULL);
-	pthread_mutex_init(&new_philo->meal_time_mutex, NULL);
+	pthread_mutex_init(&new_philo->eat_mutex, NULL);
 	new_philo->next = NULL;
 	new_philo->prev = NULL;
 	return (new_philo);
 }
 
-void	lst_clear(t_philo **table, t_data d)
+void	lst_clear(t_philo **table, uint32_t num_philo)
 {
 	uint32_t	i;
 	t_philo		*philo;
@@ -41,12 +41,14 @@ void	lst_clear(t_philo **table, t_data d)
 
 	philo = *table;
 	i = -1;
-	while (++i < d.num_philo)
+	while (++i < num_philo)
 	{
 		prev = philo;
 		philo = philo->next;
+		pthread_mutex_unlock(&prev->fork_mutex);
 		pthread_mutex_destroy(&prev->fork_mutex);
-		pthread_mutex_destroy(&prev->meal_time_mutex);
+		pthread_mutex_unlock(&prev->eat_mutex);
+		pthread_mutex_destroy(&prev->eat_mutex);
 		free(prev);
 	}
 	free(table);

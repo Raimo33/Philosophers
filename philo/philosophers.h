@@ -40,7 +40,7 @@ typedef struct s_data
 typedef struct s_philo
 {
 	pthread_mutex_t	fork_mutex;
-	pthread_mutex_t	meal_time_mutex;
+	pthread_mutex_t	eat_mutex;
 	pthread_t		thread_id;
 	pthread_t		thread2_id;
 	t_data			*data;
@@ -61,6 +61,6 @@ int			ft_atoi(char *nptr);
 uint64_t	get_time(uint64_t start);
 void		destroy_and_free(t_data *data, t_philo **table);
 t_philo		*lst_new(uint32_t i, t_data *d);
-void		lst_clear(t_philo **table, t_data d);
+void		lst_clear(t_philo **table, uint32_t num_philo);
 
 #endif

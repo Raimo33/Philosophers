@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 16:46:03 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/03 13:45:23 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/15 14:27:39 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 static int8_t	check_args(int argc, char **argv);
 static int8_t	init(t_data *d, char **argv, int8_t is_max_meals);
 static int8_t	init_table(t_data *d, t_philo **table);
-static void		join_threads(t_data d, t_philo *philo);
+static void		join_threads(uint32_t num_philo, t_philo *philo);
 
 int	main(int argc, char **argv)
 {
@@ -40,7 +40,7 @@ int	main(int argc, char **argv)
 		destroy_and_free(data, table);
 		return (-1);
 	}
-	join_threads(*data, *table);
+	join_threads(ft_atoi(argv[1]), *table);
 	usleep(data->time_to_die * 1000 + 1000);
 	destroy_and_free(data, table);
 	return (0);
@@ -108,12 +108,12 @@ static int8_t	init_table(t_data *d, t_philo **table)
 	return (0);
 }
 
-static void	join_threads(t_data d, t_philo *philo)
+static void	join_threads(uint32_t num_philo, t_philo *philo)
 {
 	uint32_t	i;
 
 	i = -1;
-	while (++i < d.num_philo)
+	while (++i < num_philo)
 	{
 		pthread_join(philo->thread_id, NULL);
 		philo = philo->next;

@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 18:48:05 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/02 18:34:40 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/15 14:48:11 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,10 @@ uint64_t	get_time(uint64_t start)
 
 void	destroy_and_free(t_data *data, t_philo **table)
 {
+	pthread_mutex_unlock(&data->game_over_mutex);
 	pthread_mutex_destroy(&data->game_over_mutex);
+	lst_clear(table, data->num_philo);
+	pthread_mutex_unlock(&data->finished_mutex);
 	pthread_mutex_destroy(&data->finished_mutex);
-	lst_clear(table, *data);
 	free(data);
 }
