@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 16:46:03 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/16 18:40:04 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/16 21:33:37 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 static int8_t	check_args(int argc, char **argv);
 static int8_t	init(t_data *d, char **argv, int8_t is_max_meals);
 static int8_t	init_table(t_data *d, t_philo **table);
-static void		wait_processes(t_data d, t_philo **table);
+static void		wait_processes(t_data d);
 
 int	main(int argc, char **argv)
 {
@@ -37,7 +37,7 @@ int	main(int argc, char **argv)
 		destroy_and_free(data);
 		return (-1);
 	}
-	wait_processes(*data, table);
+	wait_processes(*data);
 	destroy_and_free(data);
 	return (0);
 }
@@ -73,8 +73,10 @@ static int8_t	init(t_data *d, char **argv, int8_t is_max_meals)
 	sem_unlink("/forks_pool");
 	sem_unlink("/print");
 	sem_unlink("/game_over");
+	sem_unlink("/meal_time");
 	d->forks_pool = sem_open("/forks_pool", O_CREAT, 0644, d->num_philo);
 	d->print_sem = sem_open("/print", O_CREAT, 0644, 1);
+	d->game_over_sem = NULL;
 	return (0);
 }
 
@@ -104,27 +106,14 @@ static int8_t	init_table(t_data *d, t_philo **table)
 	return (0);
 }
 
-static void	wait_processes(t_data d, t_philo **table)
+static void	wait_processes(t_data d)
 {
 	uint32_t	i;
-	uint32_t	j;
-	int32_t		status;
-	t_philo		*philo;
 
 	i = 0;
 	while (++i <= d.num_philo)
-	{
-		waitpid(-1, &status, 0);
-		if (WIFEXITED(status) && WEXITSTATUS(status) == 1)
-		{
-			philo = *table;
-			j = 0;
-			while (++j <= d.num_philo)
-			{
-				kill(philo->process_id, SIGKILL);
-				philo = philo->next;
-			}
-			break ;
-		}			
-	}
+		waitpid(-1, NULL, 0);
+	sem_unlink("/forks_pool");
+	sem_unlink("/print");
+	sem_unlink("/game_over");
 }

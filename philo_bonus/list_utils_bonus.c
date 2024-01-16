@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 19:37:38 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/02 18:39:01 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/16 21:33:18 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ t_philo	*lst_new(uint32_t i, t_data *d)
 	new_philo->thread_id = 0;
 	new_philo->meal_time = 0;
 	new_philo->data = d;
-	sem_unlink("/meal_time");
 	new_philo->meal_time_sem = sem_open("/meal_time", O_CREAT, 0644, 1);
 	new_philo->next = NULL;
 	new_philo->prev = NULL;
