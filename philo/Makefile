@@ -6,7 +6,7 @@
 #    By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/12/27 16:46:18 by craimond          #+#    #+#              #
-#    Updated: 2024/01/15 14:09:24 by craimond         ###   ########.fr        #
+#    Updated: 2024/01/15 14:52:13 by craimond         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,7 +26,7 @@ $(NAME): $(OBJS) $(HEADER)
 	@echo compiled $(NAME)
 
 .c.o:
-	@cc -g -Wall -Wextra -Werror -c $< -o $@
+	@cc -Wall -Wextra -Werror -c $< -o $@
 
 all: $(NAME)
 

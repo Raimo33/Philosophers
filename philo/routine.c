@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/30 14:49:31 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/15 14:22:41 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/16 16:26:54 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ static void	*routine(void *arg)
 		print_state(philo->data, philo->id, "is thinking");
 		usleep(philo->data->time_to_eat * 1000);
 	}
-	while (philo->stop == 0 && !is_game_over(philo->data))
+	while (!is_game_over(philo->data))
 	{
 		pthread_mutex_lock(&philo->fork_mutex);
 		print_state(philo->data, philo->id, "has taken a fork");
@@ -62,6 +62,9 @@ static void	*routine(void *arg)
 
 static void	philo_eat(t_philo *philo)
 {
+	t_data	*d;
+
+	d = philo->data;
 	pthread_mutex_lock(&philo->eat_mutex);
 	philo->meals_eaten++;
 	print_state(philo->data, philo->id, "is eating");
@@ -70,6 +73,13 @@ static void	philo_eat(t_philo *philo)
 	pthread_create(&philo->thread2_id, NULL, &check_death, philo);
 	pthread_detach(philo->thread2_id);
 	usleep(philo->data->time_to_eat * 1000);
+	if (philo->meals_eaten >= d->max_meals && d->max_meals != -1)
+	{
+		pthread_mutex_lock(&d->finished_mutex);
+		if (++(d->num_philo_finished) >= d->num_philo)
+			set_game_over(d);
+		pthread_mutex_unlock(&d->finished_mutex);
+	}
 }
 
 static void	*check_death(void *arg)
@@ -87,14 +97,6 @@ static void	*check_death(void *arg)
 		pthread_mutex_unlock(&philo->eat_mutex);
 		set_game_over(d);
 		printf("%-20lu %-10u died\n", get_time(d->start_time), philo->id);
-	}
-	else if (philo->meals_eaten >= d->max_meals && d->max_meals != -1)
-	{
-		pthread_mutex_unlock(&philo->eat_mutex);
-		pthread_mutex_lock(&d->finished_mutex);
-		if (++(d->num_philo_finished) >= d->num_philo)
-			set_game_over(d);
-		pthread_mutex_unlock(&d->finished_mutex);
 	}
 	else
 		pthread_mutex_unlock(&philo->eat_mutex);

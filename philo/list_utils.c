@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 19:37:38 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/15 14:46:12 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/16 16:26:58 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ t_philo	*lst_new(uint32_t i, t_data *d)
 		return (NULL);
 	new_philo->id = i;
 	new_philo->meals_eaten = 0;
-	new_philo->stop = 0;
 	new_philo->thread_id = 0;
 	new_philo->thread2_id = 0;
 	new_philo->meal_time = 0;
