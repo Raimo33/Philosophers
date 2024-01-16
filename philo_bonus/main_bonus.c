@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 16:46:03 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/03 15:59:45 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/16 18:40:04 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ static int8_t	init(t_data *d, char **argv, int8_t is_max_meals)
 	d->start_time = get_time(0);
 	sem_unlink("/forks_pool");
 	sem_unlink("/print");
+	sem_unlink("/game_over");
 	d->forks_pool = sem_open("/forks_pool", O_CREAT, 0644, d->num_philo);
 	d->print_sem = sem_open("/print", O_CREAT, 0644, 1);
 	return (0);
@@ -124,6 +125,6 @@ static void	wait_processes(t_data d, t_philo **table)
 				philo = philo->next;
 			}
 			break ;
-		}
+		}			
 	}
 }

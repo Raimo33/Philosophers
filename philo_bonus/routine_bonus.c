@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/30 14:49:31 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/15 15:12:17 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/16 18:40:27 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,14 +66,19 @@ static void	routine(t_philo *philo)
 
 static void	philo_eat(t_philo *philo)
 {
+	t_data	*d;
+
+	d = philo->data;
+	sem_wait(philo->meal_time_sem);
 	philo->meals_eaten++;
 	pthread_create(&philo->thread_id, NULL, &check_death, philo);
 	pthread_detach(philo->thread_id);
 	print_state(philo, "is eating");
-	sem_wait(philo->meal_time_sem);
 	philo->meal_time = get_time(philo->data->start_time);
 	sem_post(philo->meal_time_sem);
 	usleep(philo->data->time_to_eat * 1000);
+	if (philo->meals_eaten >= d->max_meals && d->max_meals != -1)
+		philo->stop = 2;
 }
 
 static void	*check_death(void *arg)
@@ -91,13 +96,7 @@ static void	*check_death(void *arg)
 		sem_post(philo->meal_time_sem);
 		sem_wait(d->print_sem);
 		philo->stop = 1;
-		sem_post(d->print_sem);
-	}
-	else if (philo->meals_eaten >= d->max_meals && d->max_meals != -1)
-	{
-		sem_post(philo->meal_time_sem);
-		sem_wait(d->print_sem);
-		philo->stop = 2;
+		philo->data->game_over_sem = sem_open("/game_over", O_CREAT, 0644, 1);
 		sem_post(d->print_sem);
 	}
 	else

@@ -30,6 +30,7 @@ typedef struct s_data
 {
 	sem_t				*forks_pool;
 	sem_t				*print_sem;
+	sem_t				*game_over_sem;
 	uint64_t			start_time;
 	uint32_t			num_philo;
 	uint32_t			time_to_die;

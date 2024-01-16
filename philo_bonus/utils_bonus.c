@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 18:48:05 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/03 15:38:40 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/16 18:40:36 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,10 @@ void	destroy_and_free(t_data *data)
 {
 	sem_close(data->forks_pool);
 	sem_close(data->print_sem);
+	sem_close(data->game_over_sem);
 	sem_unlink("/forks_pool");
 	sem_unlink("/print");
+	sem_unlink("/game_over");
 	lst_clear(data->table, *data);
 	free(data);
 }
