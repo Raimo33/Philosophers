@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/30 14:49:31 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/16 16:26:54 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/17 21:55:20 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,9 +94,9 @@ static void	*check_death(void *arg)
 	if (get_time(d->start_time) - philo->meal_time >= d->time_to_die
 		&& !is_game_over(d))
 	{
+		printf("%-20lu %-10u died\n", get_time(d->start_time), philo->id);
 		pthread_mutex_unlock(&philo->eat_mutex);
 		set_game_over(d);
-		printf("%-20lu %-10u died\n", get_time(d->start_time), philo->id);
 	}
 	else
 		pthread_mutex_unlock(&philo->eat_mutex);
