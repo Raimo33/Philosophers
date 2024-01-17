@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 18:48:05 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/16 21:32:01 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/17 15:20:25 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,10 @@ uint64_t	get_time(uint64_t start)
 void	destroy_and_free(t_data *data)
 {
 	sem_close(data->forks_pool);
-	sem_close(data->print_sem);
+	sem_wait(data->print_sem);
 	sem_close(data->game_over_sem);
+	sem_post(data->print_sem);
+	sem_close(data->print_sem);
 	lst_clear(data->table, *data);
 	free(data);
 }

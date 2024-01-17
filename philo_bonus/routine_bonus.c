@@ -6,7 +6,7 @@
 /*   By: craimond <bomboclat@bidol.juis>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/30 14:49:31 by craimond          #+#    #+#             */
-/*   Updated: 2024/01/16 21:27:12 by craimond         ###   ########.fr       */
+/*   Updated: 2024/01/17 15:17:53 by craimond         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,15 @@ static void	routine(t_philo *philo)
 		print_state(philo, "is thinking");
 		usleep(philo->data->time_to_eat * 1000);
 	}
-	while (philo->stop == 0)
+	while (1)
 	{
+		sem_wait(philo->data->print_sem);
+		if (philo->stop != 0)
+		{
+			sem_post(philo->data->print_sem);
+			break ;
+		}
+		sem_post(philo->data->print_sem);
 		sem_wait(philo->data->forks_pool);
 		print_state(philo, "has taken a fork");
 		sem_wait(philo->data->forks_pool);
@@ -59,7 +66,9 @@ static void	routine(t_philo *philo)
 		usleep(philo->data->time_to_sleep * 1000);
 		print_state(philo, "is thinking");
 	}
+	sem_wait(philo->data->print_sem);
 	ret = philo->stop;
+	sem_post(philo->data->print_sem);
 	usleep((philo->data->time_to_die + philo->data->time_to_eat) * 1000 + 10000);
 	destroy_and_free(philo->data);
 	exit(ret);
@@ -79,7 +88,11 @@ static void	philo_eat(t_philo *philo)
 	sem_post(philo->meal_time_sem);
 	usleep(philo->data->time_to_eat * 1000);
 	if (philo->meals_eaten >= d->max_meals && d->max_meals != -1)
+	{
+		sem_wait(d->print_sem);
 		philo->stop = 2;
+		sem_post(d->print_sem);
+	}
 }
 
 static void	*check_death(void *arg)
